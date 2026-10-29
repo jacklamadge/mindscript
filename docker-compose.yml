@@ -1,0 +1,15 @@
+services:
+  mindscript:
+    build: .
+    container_name: mindscript
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      DATABASE_URL: "sqlite:////data/vibepromt.db"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

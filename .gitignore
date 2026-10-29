@@ -1,0 +1,17 @@
+backend/venv/
+backend/.venv/
+**/__pycache__/
+**/*.pyc
+**/*.db
+.pytest_cache/
+backend/.env
+.env
+data/
+*.zip
+.DS_Store
+frontend_backup/
+frontend_backup_*/
+_img_compare/
+*.code-workspace
+deploy.bat
+

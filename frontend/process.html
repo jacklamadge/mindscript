@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="navbar.js?v=2"></script>
+    <script src="limits-guard.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="authApi.js"></script>
+    <script src="libraryApi.js"></script>
+    <script src="referral.js?v=3"></script>
+    <script src="premium.js?v=6"></script>
+    <script src="telegram.js"></script>
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Генерация промпта</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0B0B0B;
+            --card-bg: #161616;
+            --accent-green: #C6FF33;
+            --text-main: #FFFFFF;
+            --text-dim: #888888;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #C6FF33, #8A2BE2);
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatParticle linear infinite;
+            pointer-events: none;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+            100% { transform: translateY(-100px) translateX(30px); opacity: 0; }
+        }
+        .app {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 2;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 36px 24px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #2a0f3d, #0f2a1c);
+            background-size: 200% 200%;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite, gradientShift 3s infinite;
+            position: relative;
+        }
+        .orbit-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: orbitAnim linear infinite;
+        }
+        @keyframes orbitAnim {
+            0% { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+        .icon-box svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--accent-green);
+            stroke-width: 2;
+            fill: none;
+            animation: starGlow 1.5s infinite;
+        }
+        @keyframes starGlow {
+            0%, 100% { stroke-opacity: 0.5; }
+            50% { stroke-opacity: 1; filter: drop-shadow(0 0 5px var(--accent-green)); }
+        }
+        .title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 32px;
+        }
+        .progress-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+        .bar {
+            width: 100%;
+            height: 8px;
+            background: #252525;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-green), #a855ff, var(--accent-green));
+            background-size: 200% 200%;
+            animation: shimmer 1.5s ease infinite;
+            transition: width 0.3s;
+        }
+        @keyframes shimmer {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        .steps {
+            margin: 32px auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: #555;
+            transition: 0.2s;
+        }
+        .step.current { color: var(--accent-green); }
+        .step.current .step-dot {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px rgba(198, 255, 51, 0.5);
+            animation: dotPulse 1s infinite;
+        }
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        .step.done { color: var(--text-dim); }
+        .step.done .step-dot {
+            background: var(--accent-green);
+            opacity: 0.5;
+        }
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #444;
+            flex-shrink: 0;
+        }
+        .hint {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #555;
+        }
+        .error-message {
+            text-align: center;
+            padding: 12px 0;
+        }
+        .error-message p:first-child {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+        .error-message button {
+            margin-top: 20px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 18px;
+            background: var(--accent-green);
+            color: #000;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="particles-container"></div>
+
+<div class="app">
+    <div class="card">
+        <div class="progress-ui">
+            <div class="icon-box">
+                <div class="orbit-particle" style="top:50%;left:50%;animation-duration:6s;"></div>
+                <div class="orbit-particle" style="top:50%;left:50%;animation-duration:8s;"></div>
+                <div class="orbit-particle" style="top:50%;left:50%;animation-duration:10s;"></div>
+                <svg viewBox="0 0 24 24"><path d="M12 3 L14 10 L21 12 L14 14 L12 21 L10 14 L3 12 L10 10 Z"/></svg>
+            </div>
+            <div class="title">Генерируем промпт</div>
+            <div class="subtitle">Это займёт несколько секунд</div>
+            <div class="progress-head">
+                <span id="status">Анализирую задачу…</span>
+                <span id="percent">0%</span>
+            </div>
+            <div class="bar"><div class="fill" id="fill"></div></div>
+            <div class="steps" id="steps">
+                <div class="step current"><div class="step-dot"></div>Анализирую задачу…</div>
+                <div class="step"><div class="step-dot"></div>Формирую структуру…</div>
+                <div class="step"><div class="step-dot"></div>Подбираю лучшие практики…</div>
+                <div class="step"><div class="step-dot"></div>Оптимизирую промпт…</div>
+                <div class="step"><div class="step-dot"></div>Финальная проверка…</div>
+            </div>
+            <div class="hint">Не закрывайте страницу — идёт подготовка</div>
+        </div>
+    </div>
+</div>
+
+<script src="app-config.js"></script>
+<script src="authApi.js"></script>
+<script src="tokenManager.js"></script>
+<script src="dataSender.js?v=6"></script>
+<script>
+
+const UNLIMITED = window.APP_CONFIG?.unlimitedResources === true;
+
+function createParticles() {
+    const container = document.getElementById('particles-container');
+    if (!container) return;
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.width = (Math.random() * 6 + 2) + 'px';
+        p.style.height = p.style.width;
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = Math.random() * 100 + '%';
+        p.style.animationDuration = Math.random() * 5 + 3 + 's';
+        p.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(p);
+    }
+}
+
+function hasRequiredData() {
+    const answers = localStorage.getItem('quizAnswers');
+    const category = localStorage.getItem('quizCategory');
+    if (!answers || answers === '[]' || answers === 'null' || !category) return false;
+    try {
+        const parsed = JSON.parse(answers);
+        return Array.isArray(parsed) && parsed.some(a => a && String(a).trim().length > 0);
+    } catch (e) {
+        return false;
+    }
+}
+
+function hideProgressUi() {
+    if (window.progressInterval) {
+        clearInterval(window.progressInterval);
+        window.progressInterval = null;
+    }
+    const progressUi = document.querySelector('.progress-ui');
+    if (progressUi) progressUi.style.display = 'none';
+}
+
+function showCardMessage(title, subtitle, buttonLabel, buttonAction) {
+    const card = document.querySelector('.card');
+    if (!card) return;
+    hideProgressUi();
+    card.querySelectorAll('.error-message').forEach((el) => el.remove());
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `
+        <p>${title}</p>
+        <p style="font-size: 12px; opacity: 0.7; margin-top: 8px;">${subtitle || ''}</p>
+        <button type="button">${buttonLabel}</button>
+        <button type="button" style="margin-left: 8px; background:#1A1A1A; color:#fff; border:1px solid rgba(255,255,255,0.1);">На главную</button>
+    `;
+    const buttons = errorDiv.querySelectorAll('button');
+    buttons[0].onclick = buttonAction;
+    buttons[1].onclick = goToHome;
+    card.appendChild(errorDiv);
+}
+
+function goToHome() {
+    localStorage.removeItem('isGenerating');
+    localStorage.removeItem('generationCompleted');
+    localStorage.removeItem('quizAnswers');
+    localStorage.removeItem('currentStep');
+    window.location.href = 'index.html';
+}
+
+function goToQuiz() {
+    localStorage.removeItem('isGenerating');
+    localStorage.removeItem('generationCompleted');
+    window.location.href = 'quiz.html';
+}
+
+function showNoDataError() {
+    isCompleted = true;
+    localStorage.setItem('isGenerating', 'false');
+    showCardMessage(
+        'Нет данных опроса',
+        'Сначала пройдите квиз — без ответов промпт собрать нельзя.',
+        'К опросу',
+        goToQuiz
+    );
+}
+
+function showGenerationError(msg) {
+    isCompleted = true;
+    localStorage.setItem('isGenerating', 'false');
+    showCardMessage(
+        'Не удалось сгенерировать промпт',
+        msg || 'Попробуйте ещё раз или вернитесь к опросу.',
+        'Вернуться к опросу',
+        goToQuiz
+    );
+}
+
+const steps = document.querySelectorAll('.step');
+const fill = document.getElementById('fill');
+const percent = document.getElementById('percent');
+const statusSpan = document.getElementById('status');
+
+const stepNames = [
+    'Анализирую задачу…',
+    'Формирую структуру…',
+    'Подбираю лучшие практики…',
+    'Оптимизирую промпт…',
+    'Финальная проверка…'
+];
+const boundaries = [10, 35, 60, 85, 100];
+let progress = 0;
+let isCompleted = false;
+let apiDone = false;
+
+function updateProgress() {
+    if (!fill || !percent || !statusSpan) return;
+    fill.style.width = progress + '%';
+    percent.textContent = Math.floor(progress) + '%';
+
+    for (let i = 0; i < boundaries.length; i++) {
+        if (progress <= boundaries[i]) {
+            steps.forEach((step, idx) => {
+                step.classList.remove('done', 'current');
+                if (idx < i) step.classList.add('done');
+                if (idx === i) step.classList.add('current');
+            });
+            statusSpan.textContent = stepNames[i];
+            break;
+        }
+    }
+}
+
+function finishProgressTo100() {
+    progress = 100;
+    updateProgress();
+    steps.forEach((step, idx) => {
+        step.classList.remove('current');
+        step.classList.add('done');
+        if (idx === steps.length - 1) step.classList.add('current');
+    });
+    if (statusSpan) statusSpan.textContent = 'Готово!';
+}
+
+async function runGeneration() {
+    const category = localStorage.getItem('quizCategory') || 'dev';
+    const answersJson = localStorage.getItem('quizAnswers');
+    if (!answersJson) {
+        showGenerationError('Нет ответов квиза.');
+        return;
+    }
+    if (typeof sendPromptDataToBackend !== 'function') {
+        showGenerationError('Не загружен модуль отправки. Обновите страницу.');
+        return;
+    }
+
+    try {
+        const answers = JSON.parse(answersJson);
+        const result = await sendPromptDataToBackend(category, answers);
+        if (!result || !result.final_prompt) {
+            throw new Error('Сервер не вернул промпт.');
+        }
+        localStorage.setItem('generatedPrompt', result.final_prompt);
+        if (result.short_summary) {
+            localStorage.setItem('generatedPromptSummary', result.short_summary);
+        }
+        if (result.id != null) {
+            localStorage.setItem('generatedPromptId', String(result.id));
+        }
+        apiDone = true;
+        if (window.progressInterval) {
+            clearInterval(window.progressInterval);
+            window.progressInterval = null;
+        }
+        finishProgressTo100();
+        localStorage.setItem('generationCompleted', 'true');
+        localStorage.setItem('isGenerating', 'false');
+        setTimeout(() => { window.location.href = 'answer.html'; }, 450);
+    } catch (e) {
+        console.error('Ошибка при генерации:', e);
+        showGenerationError((e && e.message) ? e.message : 'Ошибка сервера');
+    }
+}
+
+createParticles();
+
+if (!hasRequiredData()) {
+    showNoDataError();
+} else {
+    localStorage.setItem('isGenerating', 'true');
+    localStorage.removeItem('generationCompleted');
+    localStorage.removeItem('generatedPrompt');
+    localStorage.removeItem('generatedPromptSummary');
+    localStorage.removeItem('generatedPromptId');
+
+    // Анимация до 90%, пока ждём сервер
+    window.progressInterval = setInterval(() => {
+        if (apiDone || isCompleted) {
+            clearInterval(window.progressInterval);
+            window.progressInterval = null;
+            return;
+        }
+        if (progress < 90) {
+            progress += Math.random() < 0.35 ? 2 : 1;
+            if (progress > 90) progress = 90;
+            updateProgress();
+        }
+    }, 120);
+
+    // Запрос сразу, не через 10 секунд
+    runGeneration();
+}
+</script>
+</body>
+</html>
+
+

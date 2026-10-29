@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>mindscript - Профиль</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="toast.js"></script>
+    <script src="premium.js?v=4"></script>
+    <script src="libraryApi.js"></script>
+    <script src="adminGuard.js?v=6"></script>
+    <script src="navbar.js?v=2"></script>
+    <script src="feedback.js?v=3"></script>
+    <link rel="stylesheet" href="toast.css">
+    <style>
+        :root {
+            --bg-color: #0B0B0B;
+            --card-bg: #1A1A1A;
+            --accent-green: #C6FF33;
+            --accent-purple: #8A2BE2;
+            --text-main: #FFFFFF;
+            --text-dim: #888888;
+            --border-color: rgba(255,255,255,0.05);
+            --link-blue: #6C9FFF;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; padding: 20px; }
+        .app { width: 100%; max-width: 400px; padding-bottom: 120px; }
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 25px; }
+        .user-section { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .avatar-wrapper { width: 75px; height: 75px; border-radius: 50%; padding: 3px; background: linear-gradient(45deg, #8A2BE2, #C6FF33, #8A2BE2); background-size: 200% 200%; animation: gradientMove 3s ease infinite; display: flex; align-items: center; justify-content: center; }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; background: #222; object-fit: cover; border: 2px solid var(--bg-color); }
+        .user-text h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .user-text p { color: var(--text-dim); font-size: 14px; }
+        .profile-actions { display: flex; flex-direction: column; gap: 12px; margin: 15px 0 25px 0; }
+        .auth-actions { display: flex; flex-direction: column; gap: 10px; }
+        .btn-login { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card-bg); color: var(--text-main); padding: 14px 16px; border-radius: 18px; border: 1px solid var(--border-color); width: 100%; text-decoration: none; cursor: pointer; }
+        .btn-login-title { font-size: 15px; font-weight: 600; }
+        .btn-login-hint { margin-top: 6px; font-size: 12px; font-weight: 500; color: var(--accent-green); }
+        .btn-logout { background: #222; color: var(--text-dim); padding: 10px; border-radius: 14px; border: 1px solid var(--border-color); font-size: 13px; cursor: pointer; width: 100%; }
+        .premium-banner, .premium-active-banner { background: var(--card-bg); border-radius: 18px; padding: 16px; border: 1px solid var(--border-color); }
+        .premium-banner h3, .premium-active-banner h3 { font-size: 16px; margin-bottom: 4px; }
+        .premium-banner p, .premium-active-banner p { color: var(--text-dim); font-size: 13px; margin-bottom: 12px; }
+        .premium-btn { background: var(--accent-purple); color: white; padding: 10px 16px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; width: 100%; }
+        .stats-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .stat-card { background: var(--card-bg); border-radius: 20px; padding: 15px 10px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-value { font-size: 22px; font-weight: 800; display: block; color: var(--text-main); margin-bottom: 4px; }
+        .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .menu-container { background: var(--card-bg); border-radius: 24px; padding: 5px 20px; border: 1px solid var(--border-color); }
+        .menu-item { display: flex; align-items: center; padding: 18px 0; text-decoration: none; color: var(--text-main); cursor: pointer; }
+        .menu-item:not(:last-child) { border-bottom: 1px solid var(--border-color); }
+        .menu-icon { width: 22px; height: 22px; margin-right: 15px; color: var(--text-dim); }
+        .menu-text { flex-grow: 1; font-size: 15px; font-weight: 500; }
+        .chevron { color: #444; font-size: 18px; }
+        .footer { margin-top: 25px; padding-left: 5px; }
+        .agreement { color: var(--link-blue); text-decoration: underline; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <h1>Профиль</h1>
+    <div class="user-section">
+        <div class="avatar-wrapper"><div class="avatar-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;">👤</div></div>
+        <div class="user-text">
+            <h2 id="userName">Пользователь</h2>
+            <p id="userStatus">Базовый аккаунт</p>
+        </div>
+    </div>
+    <div class="profile-actions">
+        <div class="auth-actions" id="authActions">
+            <a href="login.html" class="btn-login" id="btnLogin">
+                <span class="btn-login-title">Войти</span>
+                <span class="btn-login-hint">Нет аккаунта? Зарегистрируйтесь</span>
+            </a>
+            <button type="button" class="btn-logout" id="btnLogout" style="display:none;">Выйти</button>
+        </div>
+        <div id="premiumSection">
+            <div class="premium-banner" id="premiumBanner">
+                <h3>👑 Перейти на Premium</h3>
+                <p>∞ генераций · GPT-4 · приватность</p>
+                <button id="activatePremiumBtn" class="premium-btn">Активировать</button>
+            </div>
+            <div id="premiumActive" style="display:none;">
+                <div class="premium-active-banner">
+                    <h3>👑 Premium активен</h3>
+                    <p>Безлимитные генерации</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="stats-container">
+        <div class="stat-card"><span class="stat-value" id="statPrompts">0</span><span class="stat-label">Промптов</span></div>
+        <div class="stat-card"><span class="stat-value" id="statFavorites">0</span><span class="stat-label">избранное</span></div>
+        <div class="stat-card"><span class="stat-value" id="statCollections">0</span><span class="stat-label">Коллекции</span></div>
+    </div>
+    <div class="menu-container">
+        <div class="menu-item"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="menu-text">Пополнить токены</span><span class="chevron">›</span></div>
+        <div class="menu-item"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="menu-text">Инструкция по использованию</span><span class="chevron">›</span></div>
+        <a href="library.html?tab=favorites" class="menu-item"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="menu-text">избранные</span><span class="chevron">›</span></a>
+        <a href="library.html?tab=collections" class="menu-item"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span class="menu-text">Коллекции</span><span class="chevron">›</span></a>
+        <div class="menu-item"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="menu-text">Настройки</span><span class="chevron">›</span></div>
+        <div class="menu-item" onclick="Feedback.reviews()"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.5 8.5 0 0 1 3.5 1.2L21 4z"/></svg><span class="menu-text">Отзывы</span><span class="chevron">›</span></div>
+        <div class="menu-item" onclick="Feedback.support()"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="menu-text">Написать в поддержку</span><span class="chevron">›</span></div>
+        <a href="admin.html" style="display:block;text-align:center;margin-top:16px;color:#666;font-size:13px;text-decoration:none;">📊 Аналитика</a>
+    </div>
+    <div class="footer"><a href="#" class="agreement">Пользовательское соглашение</a></div>
+</div>
+<script src="profile.js?v=7"></script>
+</body>
+</html>

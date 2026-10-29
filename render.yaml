@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: mindscript
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        value: sqlite:////data/vibepromt.db
+      - key: LLM_PROVIDER
+        value: nvidia
+      - key: NVIDIA_MODEL
+        value: nvidia/nemotron-3.5-bolt-e4b
+      - key: NVIDIA_API_URL
+        value: https://integrate.api.nvidia.com/v1/chat/completions
+      - key: NVIDIA_MAX_TOKENS
+        value: "4096"
+      - key: BOT_TOKEN
+        sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: MINI_APP_URL
+        sync: false
+      - key: ADMIN_TELEGRAM_ID
+        sync: false

@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindScript · Сообщество</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="telegram.js"></script>
+<style>
+body{background:#0A0A0F;color:#fff;font-family:-apple-system,system-ui,sans-serif;margin:0;padding:16px;padding-bottom:110px;}
+.back{color:#C6FF33;text-decoration:none;font-size:14px;}
+h1{font-size:22px;margin:14px 0;}
+#publishBtn{width:100%;background:#C6FF33;border:none;color:#000;padding:13px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:16px;}
+.ccard{background:#1A1A1A;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;margin-bottom:12px;}
+.ctitle{font-weight:700;font-size:15px;}
+.cauthor{color:#888;font-size:12px;margin-top:4px;}
+.ctext{background:#0A0A0F;border-radius:10px;padding:10px;font-size:13px;white-space:pre-wrap;max-height:140px;overflow-y:auto;color:#ccc;margin:10px 0;}
+.cfoot{display:flex;gap:8px;}
+.cfoot button{background:rgba(255,255,255,0.06);border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:13px;cursor:pointer;}
+.empty{color:#666;text-align:center;padding:40px;}
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← На главную</a>
+<h1>🏪 Сообщество</h1>
+<button id="publishBtn">✍️ Опубликовать свой промпт</button>
+<div id="list"><div class="empty">⏳ Загрузка...</div></div>
+<script src="community.js"></script>
+<script src="navbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="navbar.js?v=2"></script>
+    <script src="limits-guard.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="authApi.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="telegram.js"></script>
+    <script src="libraryApi.js"></script>
+    <script src="referral.js?v=3"></script>
+    <script src="premium.js?v=6"></script>
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>mindscript - Опрос</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0B0B0B;
+            --card-bg: #161616;
+            --accent-green: #C6FF33;
+            --text-main: #FFFFFF;
+            --text-dim: #888888;
+            --border: rgba(255,255,255,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding: 20px 20px 100px 20px; }
+        .app { width: 100%; max-width: 400px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .back-link { color: var(--text-main); font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; }
+        .progress-text { color: var(--text-dim); font-size: 14px; }
+        .token-badge { background: #1A1A1A; padding: 5px 12px; border-radius: 14px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        .token-badge svg { width: 14px; height: 14px; fill: none; stroke: var(--accent-green); stroke-width: 2; }
+        .question-title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 24px; }
+        .input-box { position: relative; background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 16px; }
+        textarea { width: 100%; height: 130px; background: transparent; border: none; color: white; font-size: 16px; resize: none; outline: none; }
+        textarea::placeholder { color: #444; }
+        .char-counter { position: absolute; bottom: 15px; right: 20px; font-size: 12px; color: var(--text-dim); }
+        .hints { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
+        .hint-btn { background: #1A1A1A; border: 1px solid var(--border); padding: 10px 16px; border-radius: 100px; font-size: 14px; color: var(--text-dim); cursor: pointer; transition: 0.2s; animation: fadeInUp 0.3s ease-out; user-select: none; }
+        .hint-btn.active { background: rgba(198, 255, 51, 0.12); border-color: var(--accent-green); color: var(--accent-green); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hint-btn:hover { border-color: var(--accent-green); color: white; transform: translateY(-2px); }
+        .hint-btn.active:hover { color: var(--accent-green); }
+        
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .skip {
+            color: white !important;
+            text-decoration: underline;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent !important;
+            border: none;
+            padding: 12px 0;
+        }
+        .skip:hover {
+            color: #C6FF33 !important;
+        }
+        
+        
+        .continue,
+        button.continue,
+        .step-nav .continue,
+        div .continue,
+        .continue.continue-button,
+        #continueButton {
+            background: #C6FF33 !important;
+            background-color: #C6FF33 !important;
+            color: #000000 !important;
+            padding: 14px 32px !important;
+            border-radius: 18px !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: transform 0.1s, opacity 0.2s !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            opacity: 1 !important;
+        }
+        .continue:hover,
+        button.continue:hover {
+            background: #C6FF33 !important;
+            background-color: #C6FF33 !important;
+            transform: scale(1.02) !important;
+        }
+        .continue:active {
+            transform: scale(0.96) !important;
+        }
+        .continue.disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            pointer-events: none !important;
+        }
+        
+
+        button {
+            background: #C6FF33 !important;
+        }
+
+        .step-nav button:last-child {
+            background: #C6FF33 !important;
+            background-color: #C6FF33 !important;
+        }
+    </style>
+</head>
+<script>try{localStorage.removeItem('quizStep');}catch(e){}</script>
+<body>
+<div class="app">
+    <header class="quiz-header">
+        <div class="back-link" onclick="handleBack()">← На главную</div>
+        <div class="progress-text" id="step-counter">Вопрос 1 из 7</div>
+        <!-- В шапке квиза, рядом с токенами -->
+        <div class="header-stats">
+            <span class="token-display">
+            ⚡ <span class="token-value">125</span>
+            </span>
+            <span class="gens-display">
+            🎯 <span class="gens-value">5</span>
+            </span>
+        </div>
+        <div class="token-badge" onclick="alert('Баланс токенов')">
+            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span class="token-value" id="tokenValue">125</span>
+        </div>
+    </header>
+    <h1 class="question-title" id="question-text">Что именно мы создаем?</h1>
+    <div class="input-box">
+        <textarea id="inp" maxlength="300" placeholder="Например: telegram-бот..."></textarea>
+        <div class="char-counter"><span id="c">0</span>/300</div>
+    </div>
+    <div class="hints" id="hints-list"></div>
+    <div class="step-nav">
+        <div class="skip" onclick="nextQuestion(true)">Пропустить</div>
+        <button class="continue" id="continueButton" style="background: #C6FF33 !important; background-color: #C6FF33 !important; color: #000000 !important; padding: 14px 32px !important; border-radius: 18px !important; font-weight: 600 !important; font-size: 16px !important; border: none !important; cursor: pointer !important;" onclick="nextQuestion(false)">Продолжить</button>
+    </div>
+</div>
+
+<script src="app-config.js"></script>
+<script>
+const UNLIMITED = window.APP_CONFIG?.unlimitedResources === true;
+
+// ДАННЫЕ ОПРОСНИКА — по 8 вариантов на вопрос
+const questionsData = {
+    dev: [
+        { q: "Что именно мы создаем?", hints: ["Telegram-бот", "Landing Page", "SaaS сервис", "REST API", "Мобильное приложение", "CLI-утилита", "Chrome-расширение", "Админ-панель"] },
+        { q: "Какой стек технологий?", hints: ["Python / FastAPI", "Node.js / Express", "React / TypeScript", "Next.js", "Go / Gin", "Vue / Nuxt", "Django", "Flutter"] },
+        { q: "Какой уровень кода вам нужен?", hints: ["Учебный пример", "MVP", "Прототип", "Production-ready", "Высоконагруженный", "Enterprise", "Pet-проект", "Хакатон"] },
+        { q: "Где будет развернуто?", hints: ["Vercel / Netlify", "Docker", "AWS / GCP", "VPS (Ubuntu)", "Cloudflare Workers", "Railway", "Render", "Локально"] },
+        { q: "Нужна ли база данных?", hints: ["PostgreSQL", "MongoDB", "SQLite", "Supabase", "Firebase", "Redis", "MySQL", "Без БД"] },
+        { q: "Какой дизайн?", hints: ["Material UI", "Tailwind", "Dark Theme", "Minimalism", "Shadcn UI", "Ant Design", "Chakra UI", "Свой дизайн"] },
+        { q: "Дополнительные пожелания?", hints: ["Без требований", "Высокая производительность", "Безопасность", "Масштабируемость", "Простота поддержки", "Тесты", "CI/CD", "Документация"] }
+    ],
+    promo: [
+        { q: "Что именно продвигаем?", hints: ["Telegram-канал", "Сайт / Landing Page", "Мобильное приложение", "Услугу / сервис", "Бренд", "Инфопродукт", "Мероприятие", "E-commerce"] },
+        { q: "Кто целевая аудитория?", hints: ["B2B компании", "B2C клиенты", "Стартапы", "Фрилансеры", "Предприниматели", "Студенты", "IT-специалисты", "Родители"] },
+        { q: "Где планируем продвижение?", hints: ["Telegram Ads", "Instagram Reels", "TikTok", "Яндекс Директ", "VK Реклама", "YouTube", "Email-рассылка", "SEO / блог"] },
+        { q: "Какая тональность?", hints: ["Дружелюбный", "Экспертный", "Дерзкий", "Деловой", "Эмоциональный", "Юмористический", "Премиальный", "Простой"] },
+        { q: "Какой формат контента?", hints: ["Короткие видео", "Лонгриды", "Инфографика", "Кейсы", "Посты в блог", "Сторис", "Карусели", "Подкасты"] },
+        { q: "Какой бюджет?", hints: ["Без бюджета (органика)", "До 10 000 ₽", "До 50 000 ₽", "От 100 000 ₽", "Не ограничен", "Бартер", "Партнёрства", "Ещё не решили"] },
+        { q: "Дополнительные пожелания?", hints: ["Без требований", "Высокая конверсия", "Узнаваемость бренда", "Вовлечение аудитории", "Вирусный эффект", "Лиды в CRM", "Удержание", "Ретаргетинг"] }
+    ]
+};
+
+const urlParams = new URLSearchParams(window.location.search);
+let category = urlParams.get('cat') || urlParams.get('category') || localStorage.getItem('quizCategory') || 'dev';
+if (!questionsData[category]) category = 'dev';
+
+const questions = questionsData[category];
+localStorage.setItem('quizCategory', category);
+
+let currentStep = 0;
+let answers = new Array(questions.length).fill("");
+// Выбранные чипы по шагам (без дублей)
+let selectedHints = questions.map(() => []);
+
+function updateTokenDisplay() {
+    const tokenSpan = document.getElementById('tokenValue');
+    if (tokenSpan) tokenSpan.innerText = UNLIMITED ? '∞' : (localStorage.getItem('tokensLeft') || '125');
+}
+
+function updateCounter() {
+    const val = document.getElementById('inp').value;
+    document.getElementById('c').innerText = val.length;
+}
+
+function syncContinueButton() {
+    const continueBtn = document.getElementById('continueButton');
+    if (!continueBtn) return;
+    const hasText = document.getElementById('inp').value.trim() !== '';
+    if (hasText) continueBtn.classList.remove('disabled');
+    else continueBtn.classList.add('disabled');
+}
+
+function writeSelectedToInput() {
+    const input = document.getElementById('inp');
+    input.value = selectedHints[currentStep].join(', ');
+    updateCounter();
+    syncContinueButton();
+}
+
+function parseSelectedFromAnswer(text, hints) {
+    if (!text || !String(text).trim()) return [];
+    const parts = String(text).split(',').map(s => s.trim()).filter(Boolean);
+    const picked = [];
+    for (const part of parts) {
+        const hit = hints.find(h => h.toLowerCase() === part.toLowerCase());
+        if (hit && !picked.includes(hit)) picked.push(hit);
+    }
+    return picked;
+}
+
+function toggleHint(text, btn) {
+    const list = selectedHints[currentStep];
+    const idx = list.indexOf(text);
+    if (idx >= 0) {
+        list.splice(idx, 1);
+        btn.classList.remove('active');
+    } else {
+        list.push(text);
+        btn.classList.add('active');
+    }
+    writeSelectedToInput();
+}
+
+function updateUI() {
+    const q = questions[currentStep];
+    document.getElementById('question-text').innerText = q.q;
+    document.getElementById('inp').placeholder = "Или опишите своими словами...";
+
+    // Восстанавливаем только то, что юзер уже выбирал на этом шаге — без дефолтов
+    selectedHints[currentStep] = parseSelectedFromAnswer(answers[currentStep], q.hints);
+    writeSelectedToInput();
+
+    const list = document.getElementById('hints-list');
+    list.innerHTML = '';
+    q.hints.forEach(hint => {
+        const btn = document.createElement('div');
+        btn.className = 'hint-btn' + (selectedHints[currentStep].includes(hint) ? ' active' : '');
+        btn.innerText = hint;
+        btn.onclick = () => toggleHint(hint, btn);
+        list.appendChild(btn);
+    });
+
+    document.getElementById('step-counter').innerHTML = `Вопрос ${currentStep + 1} из ${questions.length}`;
+}
+
+function saveCurrentAnswer() { 
+    answers[currentStep] = document.getElementById('inp').value; 
+    localStorage.setItem('quizAnswers', JSON.stringify(answers)); 
+    localStorage.setItem('currentStep', currentStep.toString()); 
+    localStorage.setItem('quizCategory', category);
+}
+
+function nextQuestion(skip) {
+    const currentAnswer = document.getElementById('inp').value.trim();
+    if (!skip && currentAnswer === '') { 
+        return; 
+    }
+    if (!skip) answers[currentStep] = currentAnswer;
+    
+
+    if (currentStep + 1 >= questions.length) { 
+        // Сохраняем последний ответ
+        answers[currentStep] = currentAnswer;
+        localStorage.setItem('quizAnswers', JSON.stringify(answers)); 
+        localStorage.setItem('quizCategory', category);
+        localStorage.setItem('quizCompleted', 'true');
+        
+        localStorage.removeItem('generationCompleted');
+        localStorage.removeItem('generatedPrompt');
+        localStorage.removeItem('generatedPromptSummary');
+        localStorage.removeItem('generatedPromptId');
+
+        window.location.href = 'process.html';
+    } else { 
+        saveCurrentAnswer(); 
+        currentStep++; 
+        updateUI(); 
+    }
+}
+
+function handleBack() { 
+    if (currentStep > 0) { 
+        saveCurrentAnswer(); 
+        currentStep--; 
+        updateUI(); 
+    } else { 
+        // Очищаем данные опроса при возврате на главную
+        localStorage.removeItem('quizAnswers');
+        localStorage.removeItem('currentStep');
+        localStorage.removeItem('quizCompleted');
+        window.location.href = 'index.html';
+    } 
+}
+
+
+// Новый заход с главной (?category=...) — всегда чистый квиз без префилла
+const freshStart = urlParams.has('category') || urlParams.has('cat') || urlParams.get('new') === '1';
+if (freshStart) {
+    answers = new Array(questions.length).fill("");
+    selectedHints = questions.map(() => []);
+    currentStep = 0;
+    localStorage.removeItem('quizAnswers');
+    localStorage.removeItem('currentStep');
+    localStorage.removeItem('quizCompleted');
+} else {
+    const savedAnswers = localStorage.getItem('quizAnswers');
+    if (savedAnswers) {
+        try {
+            const parsed = JSON.parse(savedAnswers);
+            if (Array.isArray(parsed) && parsed.length === questions.length) {
+                answers = parsed;
+                selectedHints = questions.map((q, i) => parseSelectedFromAnswer(answers[i], q.hints));
+            }
+            const savedStep = parseInt(localStorage.getItem('currentStep') || '0', 10);
+            if (!Number.isNaN(savedStep) && savedStep >= 0 && savedStep < questions.length) {
+                currentStep = savedStep;
+            }
+        } catch (e) {}
+    }
+}
+
+updateTokenDisplay();
+updateUI();
+
+window.addEventListener('storage', function(e) {
+    if (e.key === 'tokensLeft') updateTokenDisplay();
+});
+
+document.getElementById('inp').addEventListener('input', function() {
+    // Ручной ввод: чипы подсвечиваем только по точному совпадению, без автодобавления
+    selectedHints[currentStep] = parseSelectedFromAnswer(this.value, questions[currentStep].hints);
+    document.querySelectorAll('#hints-list .hint-btn').forEach(btn => {
+        if (selectedHints[currentStep].includes(btn.innerText)) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+    updateCounter();
+    syncContinueButton();
+});
+</script>
+</body>
+</html>
+

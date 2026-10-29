@@ -1,0 +1,220 @@
+/* Карточка лимитов */
+.limits-card {
+    background: #1A1A1A;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.limits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.limits-title {
+    color: #888;
+    font-size: 14px;
+}
+
+.limits-remaining {
+    color: #fff;
+    font-size: 14px;
+}
+
+.limits-bar {
+    height: 6px;
+    background: #2A2A2A;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.limits-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #C6FF33 0%, #A8E600 100%);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.refresh-btn {
+    background: #C6FF33;
+    color: #000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+    background: #B8F020;
+    transform: translateY(-1px);
+}
+
+/* Отображение в шапке */
+.header-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.token-display,
+.gens-display {
+    background: #1A1A1A;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #fff;
+}
+
+.token-value,
+.gens-value {
+    font-weight: 700;
+    color: #C6FF33;
+}
+/* Сетка кнопок действий */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+    padding: 0 20px;
+}
+
+.action-btn {
+    background: #1A1A1A;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: #2A2A2A;
+    border-color: #C6FF33;
+    transform: translateY(-2px);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Специфичные стили для кнопок */
+#copyBtn:hover {
+    border-color: #4CAF50;
+}
+
+#exportBtn:hover {
+    border-color: #2196F3;
+}
+
+#exportTxtBtn:hover {
+    border-color: #9C27B0;
+}
+
+#favoriteBtn.favorite-active {
+    background: rgba(198, 255, 51, 0.15);
+    border-color: #C6FF33;
+    color: #C6FF33;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 0 12px;
+    }
+    
+    .action-btn {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+}   
+/* Сетка кнопок действий */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+    padding: 0 20px;
+}
+
+.action-btn {
+    background: #1A1A1A;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: #2A2A2A;
+    border-color: #C6FF33;
+    transform: translateY(-2px);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Специфичные стили */
+#copyBtn:hover { border-color: #4CAF50; }
+#exportBtn:hover { border-color: #2196F3; }
+#exportTxtBtn:hover { border-color: #9C27B0; }
+
+#favoriteBtn.favorite-active {
+    background: rgba(198, 255, 51, 0.15);
+    border-color: #C6FF33;
+    color: #C6FF33;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 0 12px;
+    }
+    
+    .action-btn {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+}
+/* Картинки категорий */
+.category-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 12px;
+    box-shadow: 0 0 20px rgba(198, 255, 51, 0.15);
+    transition: transform 0.2s;
+}
+
+.category-card:hover .category-img {
+    transform: scale(1.05);
+}

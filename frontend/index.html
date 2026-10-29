@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="app-config.js"></script>
+    <script src="tokenManager.js"></script>
+    <script src="navbar.js?v=2"></script>
+    <script src="limits-guard.js"></script>
+    <script src="welcome.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="authApi.js"></script>
+    <script src="libraryApi.js"></script>
+    <script src="referral.js?v=3"></script>
+    <script src="premium.js?v=4"></script>
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mindscript - Генератор промптов</title>
+    <link rel="stylesheet" href="style.css"> <!-- Если есть -->
+    <style>
+        /* Базовые стили для лимитов, если их ещё нет */
+        .limits-card {
+            background: #1A1A1A;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .limits-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .limits-title { color: #888; font-size: 14px; }
+        .limits-remaining { color: #fff; font-size: 14px; }
+        .limits-bar {
+            height: 6px;
+            background: #2A2A2A;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .limits-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #C6FF33 0%, #A8E600 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .refresh-btn {
+            background: #C6FF33;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .refresh-btn:hover { background: #B8F020; }
+        .category-card {
+            background: #1A1A1A;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-card:hover { border-color: #C6FF33; transform: translateY(-2px); }
+        body { background: #0A0A0F; color: #fff; font-family: sans-serif; padding: 20px 20px 130px; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        h1 span { color: #C6FF33; }
+        p { color: #888; margin-bottom: 24px; }
+    </style>
+
+<style>
+.ms-task-heading{font-size:26px;font-weight:800;color:#fff;margin:0 0 18px;letter-spacing:-.4px}
+.ms-task-card{position:relative;display:block;border-radius:24px;overflow:hidden;aspect-ratio:4/3;min-height:240px;margin-bottom:16px;text-decoration:none;color:#fff;background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.ms-task-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.55) 38%,rgba(0,0,0,0) 70%);pointer-events:none}
+.ms-task-body{position:absolute;left:0;right:0;bottom:0;padding:20px 22px}
+.ms-task-title{display:block;font-size:22px;font-weight:800;line-height:1.15;color:#fff}
+.ms-task-sub{display:block;font-size:15px;font-weight:400;line-height:1.35;color:rgba(255,255,255,.82);margin-top:6px}
+</style>
+</head>
+<body>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+        <h2 style="margin: 0;">mindscript</h2>
+        <div class="header-stats">
+            <span style="background: #1A1A1A; padding: 6px 12px; border-radius: 8px; font-size: 13px;">
+                ⚡ <span class="token-value">125</span>
+            </span>
+        </div>
+    </header>
+
+    <main style="max-width: 600px; margin: 0 auto;">
+        <h1>Создай <span>сильный промпт</span> за 60 секунд</h1>
+        <p>Ответь на 7 простых вопросов, и получи готовый промпт под свою задачу</p>
+
+        <!-- Блок лимитов генераций -->
+        <div class="limits-card">
+            <div class="limits-header">
+                <span class="limits-title">Осталось генераций</span>
+                <span class="limits-remaining">
+                    <span class="gens-value" style="color: #C6FF33; font-size: 24px; font-weight: 700;">5</span>
+                    <span> / 5 сегодня</span>
+                </span>
+            </div>
+            <div class="limits-bar">
+                <div class="limits-fill" style="width: 100%"></div>
+            </div>
+            <button class="refresh-btn" onclick="alert('Premium скоро!')">Получить ещё</button>
+        </div>
+
+        <h2 class="ms-task-heading">Выбери задачу</h2>
+        
+        <a href="quiz.html?category=dev&new=1" class="ms-task-card" style="background-image:url('robot1.jpg')"><span class="ms-task-shade"></span><span class="ms-task-body"><span class="ms-task-title">Разработка</span><span class="ms-task-sub">Создай код, архитектуру или MVP</span></span></a>
+        
+        <a href="quiz.html?category=promo&new=1" class="ms-task-card" style="background-image:url('robot2.jpg')"><span class="ms-task-shade"></span><span class="ms-task-body"><span class="ms-task-title">Продвижение</span><span class="ms-task-sub">Посты, тексты, офферы и стратегии</span></span></a>
+        <a href="community.html" style="display:flex;align-items:center;justify-content:space-between;background:#1A1A1A;border:1px solid rgba(198,255,51,0.25);border-radius:16px;padding:14px 16px;margin-top:16px;color:#fff;text-decoration:none;font-weight:700;font-size:15px;"><span>🏪 Сообщество промптов</span><span style="color:#C6FF33;">›</span></a>
+    </main>
+
+    <!-- Скрипты -->
+<!-- ⚡ ШАБЛОНЫ ПРОМПТОВ -->
+<style>
+  .tpl-section { margin: 24px 16px 8px; }
+  .tpl-title { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tpl-card {
+    background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 14px; cursor: pointer; transition: all .2s;
+    text-align: left; color: inherit; font: inherit;
+  }
+  .tpl-card:hover { border-color: #C6FF33; transform: translateY(-2px); }
+  .tpl-icon { font-size: 22px; margin-bottom: 6px; }
+  .tpl-name { color: #fff; font-size: 14px; font-weight: 600; }
+  .tpl-desc { color: #888; font-size: 12px; margin-top: 2px; }
+  @media (max-width: 420px) { .tpl-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="tpl-section">
+  <div class="tpl-title">⚡ Быстрый старт — шаблоны</div>
+  <div class="tpl-grid" id="tplGrid"></div>
+</div>
+
+<script>
+(function () {
+  const TEMPLATES = [
+    {
+      icon: '🤖', name: 'Telegram-бот', desc: 'Бот записи клиентов',
+      category: 'dev',
+      answers: ['Telegram-бот для записи клиентов на услуги', 'Python / aiogram', 'production-ready', 'Docker', 'PostgreSQL', 'Минимализм', 'Обработка ошибок и логирование']
+    },
+    {
+      icon: '🌐', name: 'Лендинг', desc: 'Продающая страница',
+      category: 'dev',
+      answers: ['Продающий лендинг для стоматологии', 'HTML / Tailwind / JavaScript', 'production-ready', 'Vercel', 'База данных не нужна', 'Современный дизайн с анимациями', 'Форма заявки и базовое SEO']
+    },
+    {
+      icon: '🔌', name: 'REST API', desc: 'API интернет-магазина',
+      category: 'dev',
+      answers: ['REST API для интернет-магазина', 'Python / FastAPI', 'production-ready', 'Docker', 'PostgreSQL', 'Swagger-документация', 'Авторизация и тесты']
+    },
+    {
+      icon: '📊', name: 'Парсер', desc: 'Сбор данных с сайтов',
+      category: 'dev',
+      answers: ['Парсер цен конкурентов с маркетплейсов', 'Python / BeautifulSoup', 'production-ready', 'Локальный запуск', 'SQLite', 'Вывод в CSV', 'Прокси и защита от блокировок']
+    },
+    {
+      icon: '📢', name: 'Пост-анонс', desc: 'Запуск курса по йоге',
+      category: 'promo',
+      answers: ['Пост-анонс запуска курса по йоге', 'Женщины 25–40, интересуются здоровьем', 'Instagram и Telegram', 'Дружелюбный, без воды', 'Пост и 5 заголовков', 'Бюджет до 10 000 ₽', 'Анонс должен выйти в пятницу']
+    },
+    {
+      icon: '✍️', name: 'Текст оффера', desc: 'Оффер для рекламы',
+      category: 'promo',
+      answers: ['Оффер для рекламы доставки еды', 'Офисные сотрудники 23–35', 'Telegram Ads и таргет', 'Убедительный, короткий', '3 варианта оффера', 'Бюджет до 30 000 ₽', 'Акцент на скорость доставки']
+    }
+  ];
+
+  const grid = document.getElementById('tplGrid');
+  const tplSection = document.querySelector('.tpl-section');
+  if (!grid) return;
+
+  function makeCard(tpl) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'tpl-card';
+    card.innerHTML =
+      '<div class="tpl-icon">' + tpl.icon + '</div>' +
+      '<div class="tpl-name">' + tpl.name + '</div>' +
+      '<div class="tpl-desc">' + tpl.desc + '</div>';
+    card.onclick = function () {
+      localStorage.setItem('quizCategory', tpl.category);
+      localStorage.setItem('quizAnswers', JSON.stringify(tpl.answers));
+      localStorage.setItem('currentStep', '0');
+      localStorage.setItem('isGenerating', 'true');
+      window.location.href = 'process.html';
+    };
+    return card;
+  }
+
+  async function initTemplates() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) { if (tplSection) tplSection.style.display = 'none'; return; }
+    try {
+      const res = await fetch('/api/library/top-category?user_id=' + encodeURIComponent(userId));
+      if (!res.ok) throw new Error('http');
+      const data = await res.json();
+      const cat = data.top_category;
+      if (!cat) { if (tplSection) tplSection.style.display = 'none'; return; }
+      const list = TEMPLATES.filter(function (t) { return t.category === cat; });
+      grid.innerHTML = '';
+      list.forEach(function (t) { grid.appendChild(makeCard(t)); });
+      const title = document.querySelector('.tpl-title');
+      if (title) title.textContent = (cat === 'dev') ? '⚡ Быстрый старт — ваши шаблоны разработки' : '⚡ Быстрый старт — ваши шаблоны продвижения';
+    } catch (e) {
+      if (tplSection) tplSection.style.display = 'none';
+    }
+  }
+
+  initTemplates();})();
+
+</script>
+</body>
+</html>

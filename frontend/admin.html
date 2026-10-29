@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindScript · Аналитика</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="authFetch.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #0A0A0F; color: #fff; font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px; }
+        .back { display: inline-block; color: #C6FF33; margin-bottom: 16px; text-decoration: none; font-size: 14px; }
+        h1 { font-size: 22px; margin: 0 0 20px 0; }
+        h1 span { color: #C6FF33; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .card { background: #1A1A1A; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 14px 16px; }
+        .card .label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card .value { font-size: 26px; font-weight: 700; margin-top: 6px; color: #fff; }
+        .card .value.lime { color: #C6FF33; }
+        .card .value.gold { color: #FFD700; }
+        .card .sub { color: #666; font-size: 12px; margin-top: 4px; }
+        .section { background: #1A1A1A; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+        .section h2 { font-size: 15px; margin: 0 0 14px 0; color: #fff; }
+        .chart-wrap { position: relative; height: 220px; }
+        .top-list { list-style: none; padding: 0; margin: 0; }
+        .top-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .top-list li:last-child { border-bottom: none; }
+        .top-list .bar { flex: 1; margin: 0 12px; height: 6px; background: rgba(198,255,51,0.15); border-radius: 3px; overflow: hidden; align-self: center; }
+        .top-list .bar span { display: block; height: 100%; background: #C6FF33; border-radius: 3px; }
+        .top-list .count { color: #C6FF33; font-weight: 600; min-width: 40px; text-align: right; }
+        .error { background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3); padding: 14px; border-radius: 12px; color: #ff8080; }
+        .loading { color: #888; text-align: center; padding: 40px; }
+    </style>
+</head>
+<body>
+    <a href="profile.html" class="back">← В профиль</a>
+    <h1>📊 <span>Аналитика</span> MindScript</h1>
+    <div id="root"><div class="loading">⏳ Загружаю данные...</div></div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

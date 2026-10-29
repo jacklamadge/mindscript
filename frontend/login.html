@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="authFetch.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="authApi.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js"></script>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Вход</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+
+    <style>
+
+        :root {
+
+            --bg: #0B0B0B; --card: #1A1A1A; --green: #C6FF33;
+
+            --text: #fff; --dim: #888; --border: rgba(255,255,255,0.08);
+
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+
+        .app { width: 100%; max-width: 400px; }
+
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 24px; }
+
+        label { display: block; font-size: 13px; color: var(--dim); margin-bottom: 6px; }
+
+        input {
+
+            width: 100%; padding: 14px 16px; margin-bottom: 16px;
+
+            background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+
+            color: var(--text); font-size: 15px; outline: none;
+
+        }
+
+        input:focus { border-color: var(--green); }
+
+        .btn {
+
+            width: 100%; padding: 14px; border: none; border-radius: 16px;
+
+            background: var(--green); color: #000; font-weight: 700; font-size: 16px; cursor: pointer;
+
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .register-hint {
+
+            display: block; text-align: center; margin-top: 20px;
+
+            font-size: 14px; color: var(--dim);
+
+        }
+
+        .register-hint a { color: var(--green); text-decoration: none; font-weight: 600; }
+
+        .register-hint a:hover { text-decoration: underline; }
+
+        .back { color: var(--dim); text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 20px; }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <a href="profile.html" class="back">← Назад</a>
+
+    <h1>Вход</h1>
+
+    <form id="loginForm" action="#" method="post" novalidate>
+
+        <label for="name">Имя</label>
+
+        <input id="name" type="text" required autocomplete="username">
+
+        <label for="password">Пароль</label>
+
+        <input id="password" type="password" required autocomplete="current-password">
+
+        <button class="btn" type="button" id="submitBtn">Войти</button>
+
+    </form>
+
+    <p class="register-hint">Нет аккаунта? <a href="register.html">Зарегистрируйтесь</a></p>
+
+</div>
+
+<script src="authApi.js"></script>
+
+<script>
+
+const form = document.getElementById('loginForm');
+
+const submitBtn = document.getElementById('submitBtn');
+
+
+
+async function doLogin() {
+
+    if (!window.AuthApi) return;
+
+    submitBtn.disabled = true;
+
+    try {
+
+        await AuthApi.login(
+
+            document.getElementById('name').value.trim(),
+
+            document.getElementById('password').value
+
+        );
+
+        window.location.href = 'profile.html';
+
+    } catch (err) {
+
+        console.warn('Вход:', err);
+
+        submitBtn.disabled = false;
+
+    }
+
+}
+
+
+
+submitBtn.addEventListener('click', doLogin);
+
+form.addEventListener('submit', (e) => {
+
+    e.preventDefault();
+
+    doLogin();
+
+});
+
+</script>
+
+</body>
+
+</html>
+
+
+
+

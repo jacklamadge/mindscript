@@ -1,0 +1,9 @@
+@echo off
+echo [1/3] ????????...
+cd /d "C:\Users\Honor\Desktop\project v2\VIBEPROMT"
+tar -acf vibepromt.zip --exclude=venv --exclude=__pycache__ --exclude=*.zip --exclude=.env --exclude=*.db backend bot frontend
+echo [2/3] ???????? ?? ??????...
+scp vibepromt.zip root@2.56.118.152:/root/
+echo [3/3] ?????????? ? ??????????...
+ssh root@2.56.118.152 "unzip -o /root/vibepromt.zip -d /opt/vibepromt && systemctl restart mindscript-backend mindscript-bot && echo DEPLOY OK"
+pause

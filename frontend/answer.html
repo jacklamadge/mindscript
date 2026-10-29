@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="navbar.js?v=2"></script>
+    <script src="limits-guard.js"></script> 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="telegram.js"></script>
+    <script src="autoAuth.js?v=3"></script>
+    <script src="authApi.js"></script>
+    <script src="telegram.js"></script>
+    <script src="libraryApi.js"></script>
+    <script src="referral.js?v=3"></script>
+    <script src="premium.js?v=4"></script>
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>mindscript - Промпт готов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0B0B0B;
+            --card-bg: #161616;
+            --accent-green: #C6FF33;
+            --text-main: #FFFFFF;
+            --text-dim: #888888;
+            --border: rgba(255,255,255,0.05);
+            --purple: #8A2BE2;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; padding: 20px; }
+        .app { width: 100%; max-width: 400px; padding-bottom: 100px; }
+        .title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; }
+        .card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 600; }
+        .copy-btn { padding: 6px 12px; background: #1A1A1A; border: 1px solid var(--border); border-radius: 10px; color: white; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .copy-btn:hover { background: #2a2a2a; }
+        .prompt-scroll {
+            position: relative;
+            max-height: min(55vh, 420px);
+            min-height: 180px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: #111;
+            padding: 14px;
+        }
+        .prompt-scroll::-webkit-scrollbar { width: 6px; }
+        .prompt-scroll::-webkit-scrollbar-track { background: transparent; }
+        .prompt-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 6px; }
+        .prompt-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
+        .prompt-text {
+            font-size: 13px;
+            line-height: 1.55;
+            color: #ccc;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+        }
+        .prompt-hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-dim);
+            text-align: center;
+        }
+        .save-title { font-size: 15px; font-weight: 600; margin: 20px 0 10px; }
+        .save-actions { display: flex; gap: 12px; margin-bottom: 20px; }
+        .save-btn {
+            flex: 1; padding: 12px; background: #1A1A1A; border: 1px solid var(--border);
+            border-radius: 14px; color: white; cursor: pointer; text-align: center;
+            transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+        }
+        .save-btn:hover:not(.favorite-active) { background: #2a2a2a; }
+        .save-btn.favorite-active {
+            background: var(--accent-green);
+            color: #000;
+            border-color: var(--accent-green);
+            font-weight: 600;
+        }
+        .save-btn.favorite-active:hover { background: #b8eb2e; }
+        .save-btn.is-busy { opacity: 0.65; pointer-events: none; }
+        @keyframes favoritePop {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(198, 255, 51, 0.6); }
+            45% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(198, 255, 51, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(198, 255, 51, 0); }
+        }
+        .save-btn.favorite-pop {
+            animation: favoritePop 0.55s ease;
+        }
+        .improve-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+        .improve-actions { display: flex; gap: 12px; }
+        .btn-outline { flex: 1; padding: 12px; border-radius: 14px; border: 2px solid var(--purple); background: transparent; color: var(--purple); cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-outline:hover { background: rgba(138, 43, 226, 0.1); }
+        .btn-light { flex: 1; padding: 12px; border-radius: 14px; background: #1A1A1A; border: 1px solid var(--border); color: white; cursor: pointer; transition: 0.2s; }
+        .btn-light:hover { background: #2a2a2a; }
+        .premium-card { margin-top: 24px; background: linear-gradient(135deg, var(--purple), #6B1FA0); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; }
+        .premium-card:hover { transform: translateY(-2px); }
+        .premium-title { font-weight: 700; }
+        .premium-sub { font-size: 12px; opacity: 0.8; }
+        .premium-arrow { margin-left: auto; font-size: 20px; opacity: 0.6; transition: 0.2s; }
+        .premium-card:hover .premium-arrow { transform: translateX(4px); opacity: 1; }
+        .token-badge {
+            background: #1A1A1A;
+            padding: 5px 12px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .token-badge svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: var(--accent-green);
+            stroke-width: 2;
+        }
+        /* Модальное окно для создания коллекции */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #1A1A1A;
+            padding: 24px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 340px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: white;
+            margin: 15px 0;
+            outline: none;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-cancel { background: #333; color: white; }
+        .btn-confirm { background: var(--accent-green); color: black; }
+    </style>
+</head>
+<body><body>
+<div class="app">
+    <div class="token-badge">
+        <svg viewBox="0 0 24 24">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+        <span class="token-value" id="tokenValue">125</span>
+    </div>
+
+    <h1 class="title">Промпт готов!</h1>
+    <p class="subtitle">Используйте в ChatGPT или другом ИИ</p>
+
+    <div class="card">
+        <div class="card-header">
+            <span>Ваш результат</span>
+            <button class="copy-btn" id="copyBtn">📋 Копировать</button>
+        </div>
+        <div class="prompt-scroll" id="promptScroll">
+            <div class="prompt-text" id="promptText">Загрузка...</div>
+        </div>
+<script>
+(function(){
+    try {
+        var p = localStorage.getItem('generatedPrompt');
+        if (p && p !== 'undefined' && p !== 'null') {
+            document.getElementById('promptText').innerText = p;
+            var hint = document.getElementById('promptHint');
+            if (hint && p.length > 400) hint.style.display = 'block';
+        }
+    } catch(e) { console.error('[inline] error:', e); }
+})();
+</script>
+        <div class="prompt-hint" id="promptHint" style="display: none;">Листайте вниз, чтобы увидеть весь промпт</div>
+    </div>
+
+    <div class="save-title">Сохраните промпт</div>
+    <div class="save-actions">
+        <button type="button" class="save-btn" id="favoriteBtn">⭐ В избранное</button>
+        <button type="button" class="save-btn" id="collectionBtn">📁 В коллекцию</button>
+    </div>
+
+    <div class="improve-title">Нужно ещё лучше?</div>
+    <div class="improve-actions">
+        <button class="btn-outline" id="improveBtn">✨ Улучшить</button>
+        <button class="btn-light" id="regenerateBtn">🔄 Перегенерировать</button>
+    </div>
+
+    <div class="premium-card" id="premiumCard">
+        <div class="emoji">🧠</div>
+        <div class="premium-text">
+            <div class="premium-title">Premium возможности</div>
+            <div class="premium-sub">Больше генераций и без ограничений</div>
+        </div>
+        <div class="premium-arrow">➜</div>
+    </div>
+</div>
+
+<div class="modal" id="collectionModal">
+    <div class="modal-content">
+        <h3>Новая коллекция</h3>
+        <input type="text" id="newCollectionName" placeholder="Название коллекции">
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+            <button class="btn-confirm" onclick="createAndSaveToCollection()">Создать</button>
+        </div>
+    </div>
+</div>
+
+<script src="app-config.js?v=3"></script>
+<script src="authApi.js?v=3"></script>
+<script src="libraryApi.js?v=3"></script>
+<script src="answer-page.js?v=8"></script>
+<script src="navbar.js?v=3"></script>
+<script>
+window.addEventListener('load', function () {
+    function el(id) { return document.getElementById(id); }
+    var pt = el('promptText');
+    function fallbackCopy(t) {
+        var ta = document.createElement('textarea');
+        ta.value = t; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+    var copy = el('copyBtn');
+    if (copy && !copy.onclick) {
+        copy.onclick = function () {
+            var t = pt ? pt.innerText : '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(t).catch(function(){ fallbackCopy(t); });
+            } else { fallbackCopy(t); }
+            copy.textContent = '✅ Скопировано!';
+            setTimeout(function(){ copy.textContent = '📋 Копировать'; }, 2000);
+        };
+        console.log('[fallback] copy навешан');
+    }
+    var fav = el('favoriteBtn');
+    if (fav && !fav.onclick) {
+        fav.onclick = function () {
+            (async function () {
+                try {
+                    if (typeof LibraryApi === 'undefined') { console.warn('LibraryApi undefined'); return; }
+                    var prompt = localStorage.getItem('generatedPrompt') || (pt ? pt.innerText : '');
+                    var summary = localStorage.getItem('generatedPromptSummary') || 'Промпт';
+                    var pid = localStorage.getItem('generatedPromptId');
+                    await LibraryApi.ensureReady();
+                    var favs = await LibraryApi.loadFavorites();
+                    var found = null;
+                    if (pid) found = favs.find(function (f) { return f.prompt_record_id === parseInt(pid, 10); });
+                    if (!found) found = favs.find(function (f) { return f.text === prompt; });
+                    if (found) { await LibraryApi.deleteFavorite(found.id); fav.textContent = '⭐ В избранное'; }
+                    else { await LibraryApi.addFavorite(prompt, summary, pid); fav.textContent = '✓ Добавлено в избранное'; }
+                } catch (e) { console.error('[fallback] favorite error:', e); }
+            })();
+        };
+        console.log('[fallback] favorite навешан');
+    }
+    var col = el('collectionBtn');
+    if (col && !col.onclick) {
+        col.onclick = function () { var m = el('collectionModal'); if (m) m.style.display = 'flex'; };
+        console.log('[fallback] collection навешан');
+    }
+    var reg = el('regenerateBtn');
+    if (reg && !reg.onclick) {
+        reg.onclick = function () { window.location.href = 'process.html'; };
+        console.log('[fallback] regenerate навешан');
+    }
+    if (typeof window.closeModal !== 'function') {
+        window.closeModal = function () { var m = el('collectionModal'); if (m) m.style.display = 'none'; };
+    }
+    if (typeof window.createAndSaveToCollection !== 'function') {
+        window.createAndSaveToCollection = function () {
+            (async function () {
+                try {
+                    var nameEl = el('newCollectionName');
+                    var name = nameEl ? nameEl.value.trim() : '';
+                    if (!name) return;
+                    var prompt = localStorage.getItem('generatedPrompt') || (pt ? pt.innerText : '');
+                    var summary = localStorage.getItem('generatedPromptSummary') || 'Промпт';
+                    var pid = localStorage.getItem('generatedPromptId');
+                    await LibraryApi.ensureReady();
+                    var cols = await LibraryApi.loadCollections();
+                    var c = cols.find(function (x) { return x.name === name; });
+                    if (!c) c = await LibraryApi.createCollection(name);
+                    await LibraryApi.addToCollection(c.id, prompt, summary, pid);
+                    window.closeModal();
+                } catch (e) { console.error('[fallback] collection error:', e); }
+            })();
+        };
+    }
+});
+</script>
+</body>
+</html>
