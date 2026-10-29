@@ -181,9 +181,11 @@ if (!questionsData[category]) category = 'dev';
 const questions = questionsData[category];
 localStorage.setItem('quizCategory', category);
 
+const MAX_HINTS = 5;
+
 let currentStep = 0;
 let answers = new Array(questions.length).fill("");
-// Выбранные чипы по шагам (без дублей)
+// Выбранные чипы по шагам (без дублей, максимум MAX_HINTS)
 let selectedHints = questions.map(() => []);
 
 function updateTokenDisplay() {
@@ -217,7 +219,10 @@ function parseSelectedFromAnswer(text, hints) {
     const picked = [];
     for (const part of parts) {
         const hit = hints.find(h => h.toLowerCase() === part.toLowerCase());
-        if (hit && !picked.includes(hit)) picked.push(hit);
+        if (hit && !picked.includes(hit)) {
+            picked.push(hit);
+            if (picked.length >= MAX_HINTS) break;
+        }
     }
     return picked;
 }
@@ -229,6 +234,11 @@ function toggleHint(text, btn) {
         list.splice(idx, 1);
         btn.classList.remove('active');
     } else {
+        if (list.length >= MAX_HINTS) {
+            if (typeof showToast === 'function') showToast(`Можно выбрать до ${MAX_HINTS}`);
+            else if (window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(`Можно выбрать до ${MAX_HINTS}`);
+            return;
+        }
         list.push(text);
         btn.classList.add('active');
     }
