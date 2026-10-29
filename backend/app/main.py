@@ -49,7 +49,7 @@ from fastapi.responses import FileResponse
 FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
 
 # HTML-страницы — явные маршруты
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def _serve_index():
     return FileResponse(FRONTEND / "index.html")
 
