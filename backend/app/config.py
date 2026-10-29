@@ -12,7 +12,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
     bot_token: str = ""
-    mini_app_url: str = "https://cubicle-mowing-grinning.ngrok-free.dev"
+    mini_app_url: str = "https://mindscript-64qg.onrender.com"
     ngrok_domain: str | None = None
     app_name: str = "VIBEPROMT API"
     database_url: str = "sqlite:///./vibepromt.db"
