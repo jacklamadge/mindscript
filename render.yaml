@@ -28,4 +28,4 @@ services:
       - key: NVIDIA_API_KEY
         sync: false
       - key: MINI_APP_URL
-        sync: false
+        value: "https://mindscript-64qg.onrender.com"

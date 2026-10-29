@@ -26,7 +26,13 @@ BOT_TOKEN = settings.bot_token
 DB_PATH = BACKEND_DIR / "vibepromt.db"
 
 
-MINI_APP_URL = settings.mini_app_url
+_DEFAULT_MINI = "https://mindscript-64qg.onrender.com"
+_raw = (settings.mini_app_url or "").strip().rstrip("/")
+# Render иногда хранит старый placeholder — не даём ему сломать кнопку
+if not _raw or "placeholder" in _raw or "ngrok" in _raw:
+    MINI_APP_URL = _DEFAULT_MINI
+else:
+    MINI_APP_URL = _raw
 print("Mini App URL:", MINI_APP_URL)
 print("DB path:", DB_PATH, "EXISTS" if DB_PATH.exists() else "NOT FOUND")
 from aiogram.client.session.aiohttp import AiohttpSession

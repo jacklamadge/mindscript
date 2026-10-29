@@ -4,7 +4,13 @@ set -euo pipefail
 PORT="${PORT:-8000}"
 export PYTHONUNBUFFERED=1
 export PYTHONPATH="/app/backend:${PYTHONPATH:-}"
-export MINI_APP_URL="${MINI_APP_URL:-https://mindscript-64qg.onrender.com}"
+# Не даём placeholder/пустоте из Dashboard перебить рабочий URL
+case "${MINI_APP_URL:-}" in
+  ""|*placeholder*|*ngrok*)
+    export MINI_APP_URL="https://mindscript-64qg.onrender.com"
+    ;;
+esac
+export MINI_APP_URL="${MINI_APP_URL%/}"
 
 echo "[start] MINI_APP_URL=$MINI_APP_URL"
 echo "[start] PORT=$PORT"
