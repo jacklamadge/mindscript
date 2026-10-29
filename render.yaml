@@ -3,12 +3,13 @@ services:
     name: mindscript
     runtime: docker
     plan: free
+    region: frankfurt
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /
     envVars:
       - key: HOST
-        value: 0.0.0.0
+        value: "0.0.0.0"
       - key: DATABASE_URL
         value: sqlite:////data/vibepromt.db
       - key: LLM_PROVIDER
@@ -19,11 +20,12 @@ services:
         value: https://integrate.api.nvidia.com/v1/chat/completions
       - key: NVIDIA_MAX_TOKENS
         value: "4096"
+      - key: ADMIN_TELEGRAM_ID
+        value: "5189141840"
+      # Секреты — впишешь в Dashboard Render после создания сервиса:
       - key: BOT_TOKEN
         sync: false
       - key: NVIDIA_API_KEY
         sync: false
       - key: MINI_APP_URL
-        sync: false
-      - key: ADMIN_TELEGRAM_ID
         sync: false
