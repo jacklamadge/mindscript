@@ -22,6 +22,11 @@ ENV PYTHONPATH=/app/backend
 ENV HOST=0.0.0.0
 ENV PORT=8000
 ENV DATABASE_URL=sqlite:////data/vibepromt.db
+ENV MINI_APP_URL=https://mindscript-64qg.onrender.com
+ENV LLM_PROVIDER=nvidia
+ENV NVIDIA_MODEL=nvidia/nemotron-3.5-bolt-e4b
+ENV NVIDIA_API_URL=https://integrate.api.nvidia.com/v1/chat/completions
+
 
 EXPOSE 8000
 
