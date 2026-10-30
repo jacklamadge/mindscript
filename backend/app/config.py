@@ -36,6 +36,9 @@ class Settings(BaseSettings):
 
 
     request_limit_per_minute: int = 60
+    # True = генерации не списываются (UI на фронте всё равно показывает 5/5)
+    unlimited_resources: bool = True
+    free_generations: int = 5
     host: str = "0.0.0.0"
     port: int = 8000
 

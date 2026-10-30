@@ -3,12 +3,27 @@
     const origFetch = window.fetch;
     if (!origFetch) return;
 
+    function isUnlimited() {
+        return window.APP_CONFIG?.unlimitedResources === true;
+    }
+
+    function freeGens() {
+        return String(window.APP_CONFIG?.freeGenerations || 5);
+    }
+
     window.fetch = async function (...args) {
         const res = await origFetch.apply(this, args);
 
         const url = typeof args[0] === 'string' ? args[0] : ((args[0] && args[0].url) || '');
         const isGeneration = url.includes('/api/prompt/save') || url.includes('/api/bot/');
         if (!isGeneration) return res;
+
+        // Безлимит: не трогаем счётчик, UI всегда 5/5
+        if (isUnlimited()) {
+            localStorage.setItem('generationsLeft', freeGens());
+            window.dispatchEvent(new Event('user-settings-updated'));
+            return res;
+        }
 
         // 🛡️ Лимит исчерпан
         if (res.status === 402) {

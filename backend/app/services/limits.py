@@ -29,8 +29,15 @@ def spend_generation(db: Session, user_id: int) -> dict:
     Проверяет и списывает 1 генерацию НА СЕРВЕРЕ.
     Возвращает {'ok': bool, 'left': int, 'is_premium': bool}
     """
+    from app.config import settings
+
     user = get_or_create_user(db, user_id)
     _expire_trial_premium(db, user)
+
+    # Глобальный безлимит — не списываем, в ответе всегда «полный» остаток для UI
+    if settings.unlimited_resources:
+        left = settings.free_generations
+        return {"ok": True, "left": left, "is_premium": bool(user.is_premium)}
 
     # Premium — безлимит, не списываем
     if user.is_premium:

@@ -48,18 +48,14 @@ def save_prompt(body: BotPromptRequest, request: Request, db: Session = Depends(
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors()) from exc
 
-    # === ПРОВЕРКА ЛИМИТА НА СЕРВЕРЕ ===
-    if body.userId:
+    # === ПРОВЕРКА ЛИМИТА НА СЕРВЕРЕ (второй раз не списываем — уже в spend_generation) ===
+    if body.userId and not app_settings.unlimited_resources:
         user = db.get(User, body.userId)
         if user and user.generations_left <= 0 and not _is_admin:
             raise HTTPException(
-                status_code=403, 
+                status_code=403,
                 detail="Лимит генераций исчерпан. Зарегистрируйтесь или перейдите на Premium."
             )
-        # Списываем генерацию на сервере
-        if user and not _is_admin:
-            user.generations_left = max(0, user.generations_left - 1)
-            db.commit()
     # ====================================
 
     check_rate_limit(request.client.host if request.client else "unknown")

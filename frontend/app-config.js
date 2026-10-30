@@ -1,7 +1,8 @@
 // Пустой apiBaseUrl = относительные запросы (/api/...) — работает и локально, и через ngrok
 window.APP_CONFIG = {
-    unlimitedResources: false,
-    dailyLimit: 7,
+    // Генерации не списываются; в UI всегда показываем freeGenerations / freeGenerations
+    unlimitedResources: true,
+    dailyLimit: 5,
     freeGenerations: 5,
     apiBaseUrl: '',
 
