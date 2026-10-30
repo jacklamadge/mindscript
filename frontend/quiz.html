@@ -248,7 +248,7 @@ function toggleHint(text, btn) {
 function updateUI() {
     const q = questions[currentStep];
     document.getElementById('question-text').innerText = q.q;
-    document.getElementById('inp').placeholder = "Или уточните своими словами...";
+    document.getElementById('inp').placeholder = "Добавьте свои детали";
 
     // Восстанавливаем только то, что юзер уже выбирал на этом шаге — без дефолтов
     selectedHints[currentStep] = parseSelectedFromAnswer(answers[currentStep], q.hints);
