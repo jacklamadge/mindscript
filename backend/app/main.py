@@ -25,17 +25,18 @@ app.add_middleware(
 )
 from starlette.middleware.base import BaseHTTPMiddleware
 
-class NoCacheMiddleware(BaseHTTPMiddleware):
+class CacheHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         path = request.url.path
-        if path == "/" or path.endswith((".js", ".css", ".html")):
-            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-            response.headers["Pragma"] = "no-cache"
-            response.headers["Expires"] = "0"
+        # HTML всегда свежий; JS/CSS/картинки кэшируем — иначе Mini App каждый раз тянет всё с нуля
+        if path == "/" or path.endswith(".html"):
+            response.headers["Cache-Control"] = "no-cache, must-revalidate"
+        elif path.endswith((".js", ".css", ".jpg", ".jpeg", ".png", ".webp", ".svg", ".woff2")):
+            response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=600"
         return response
 
-app.add_middleware(NoCacheMiddleware)
+app.add_middleware(CacheHeadersMiddleware)
 # Роутеры API (ДО статики!)
 app.include_router(auth_router)
 app.include_router(prompt_router)
